@@ -100,3 +100,55 @@ function mainMenu() {
             }
         });
 }
+
+// View all departments function
+function viewAllDepartments() {
+    connection.query('SELECT id, name FROM department', (err, results) => {
+        if (err) {
+            console.error('Error retrieving departments:', err);
+            mainMenu();
+            return;
+        }
+        console.table(results);
+        mainMenu();
+    });
+}
+
+// View all roles function
+function viewAllRoles() {
+    const query = `
+    SELECT r.id, r.title, r.salary, d.name AS department
+    FROM role AS r
+    INNER JOIN department AS d ON r.department_id = d.id
+  `;
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Error retrieving roles:', err);
+            mainMenu();
+            return;
+        }
+        console.table(results);
+        mainMenu();
+    });
+}
+
+// View all employees function
+function viewAllEmployees() {
+    const query = `
+    SELECT e.id, e.first_name, e.last_name, r.title AS job_title, d.name AS department,
+      r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+    FROM employee AS e
+    INNER JOIN role AS r ON e.role_id = r.id
+    INNER JOIN department AS d ON r.department_id = d.id
+    LEFT JOIN employee AS m ON e.manager_id = m.id
+  `;
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Error retrieving employees:', err);
+            mainMenu();
+            return;
+        }
+        console.table(results);
+        mainMenu();
+    });
+}
