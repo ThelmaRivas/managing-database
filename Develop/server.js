@@ -602,3 +602,48 @@ function deleteEmployee() {
             });
     });
 };
+
+// Calculate the total utilized budget of a department function
+function calculateDepartmentBudget() {
+    // Retrieve the list of departments
+    const departmentQuery = 'SELECT id, name FROM department';
+    connection.query(departmentQuery, (err, departments) => {
+        if (err) {
+            console.error('Error retrieving departments:', err);
+            mainMenu();
+            return;
+        }
+        
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'department_id',
+                    message: 'Select the department:',
+                    choices: departments.map((department) => ({
+                        name: department.name,
+                        value: department.id,
+                    })),
+                }
+            ])
+            .then((answers) => {
+                const query = `
+                    SELECT SUM(role.salary) AS total_budget
+                    FROM employee
+                    INNER JOIN role ON employee.role_id = role.id
+                    INNER JOIN department ON role.department_id = department.id
+                    WHERE department.id = ?
+                `;
+                connection.query(query, [answers.department_id], (err, results) => {
+                    if (err) {
+                        console.error('Error calculating department budget:', err);
+                        mainMenu();
+                        return;
+                    }
+                    const totalBudget = results[0].total_budget;
+                    console.log(`Total Utilized Budget of the Department: $${totalBudget}`);
+                    mainMenu();
+                });
+            });
+    });
+};
