@@ -401,3 +401,91 @@ function updateEmployeeManager() {
     });
 };
 
+// View employees by manager function
+function viewEmployeesByManager() {
+    // Retrieve the list of managers
+    const managerQuery = 'SELECT id, CONCAT(first_name, " ", last_name) AS manager_name FROM employee WHERE manager_id IS NULL';
+    connection.query(managerQuery, (err, managers) => {
+        if (err) {
+            console.error('Error retrieving managers:', err);
+            mainMenu();
+            return;
+        }
+        
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'manager_id',
+                    message: 'Select the manager:',
+                    choices: managers.map((manager) => ({
+                        name: manager.manager_name,
+                        value: manager.id,
+                    })),
+                }
+            ])
+            .then((answers) => {
+                const query = 'SELECT id, CONCAT(first_name, " ", last_name) AS employee_name FROM employee WHERE manager_id = ?';
+                connection.query(query, [answers.manager_id], (err, employees) => {
+                    if (err) {
+                        console.error('Error retrieving employees:', err);
+                        mainMenu();
+                        return;
+                    }
+                    console.log('Employees by Manager:');
+                    employees.forEach((employee) => {
+                        console.log(`${employee.id}: ${employee.employee_name}`);
+                    });
+                    mainMenu();
+                });
+            });
+    });
+};
+
+// View employees by department function
+function viewEmployeesByDepartment() {
+    // Retrieve the list of departments
+    const departmentQuery = 'SELECT id, name FROM department';
+    connection.query(departmentQuery, (err, departments) => {
+        if (err) {
+            console.error('Error retrieving departments:', err);
+            mainMenu();
+            return;
+        }
+        
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'department_id',
+                    message: 'Select the department:',
+                    choices: departments.map((department) => ({
+                        name: department.name,
+                        value: department.id,
+                    })),
+                }
+            ])
+            .then((answers) => {
+                const query = `
+                    SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS employee_name
+                    FROM employee
+                    INNER JOIN role ON employee.role_id = role.id
+                    INNER JOIN department ON role.department_id = department.id
+                    WHERE department.id = ?
+                `;
+                connection.query(query, [answers.department_id], (err, employees) => {
+                    if (err) {
+                        console.error('Error retrieving employees:', err);
+                        mainMenu();
+                        return;
+                    }
+                    console.log('Employees by Department:');
+                    employees.forEach((employee) => {
+                        console.log(`${employee.id}: ${employee.employee_name}`);
+                    });
+                    mainMenu();
+                });
+            });
+    });
+};
+
