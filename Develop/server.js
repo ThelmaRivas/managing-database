@@ -99,7 +99,7 @@ function mainMenu() {
                     break;
             }
         });
-}
+};
 
 // View all departments function
 function viewAllDepartments() {
@@ -112,7 +112,7 @@ function viewAllDepartments() {
         console.table(results);
         mainMenu();
     });
-}
+};
 
 // View all roles function
 function viewAllRoles() {
@@ -130,7 +130,7 @@ function viewAllRoles() {
         console.table(results);
         mainMenu();
     });
-}
+};
 
 // View all employees function
 function viewAllEmployees() {
@@ -151,4 +151,146 @@ function viewAllEmployees() {
         console.table(results);
         mainMenu();
     });
-}
+};
+
+// Add department function
+function addDepartment() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'name',
+                message: 'What is the name of the department?',
+            },
+        ])
+        .then((answers) => {
+            const query = 'INSERT INTO department (name) VALUES (?)';
+            connection.query(query, [answers.name], (err) => {
+                if (err) {
+                    console.error('Error adding department:', err);
+                    mainMenu();
+                    return;
+                }
+                console.log(`Department "${answers.name}" added successfully to the database!`);
+                mainMenu();
+            });
+        });
+};
+
+// Add role function
+function addRole() {
+    // Query the database to get the existing departments
+    const departmentQuery = 'SELECT * FROM department';
+    connection.query(departmentQuery, (err, departments) => {
+        if (err) {
+            console.error('Error retrieving departments:', err);
+            mainMenu();
+            return;
+        }
+
+        const departmentChoices = departments.map((department) => ({
+            name: department.name,
+            value: department.id,
+        }));
+
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    name: 'title',
+                    message: 'Enter the title of the role:',
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'Enter the salary of the role:',
+                },
+                {
+                    type: 'list',
+                    name: 'department_id',
+                    message: 'Which department does the role belong to:',
+                    choices: departmentChoices,
+                },
+            ])
+            .then((answers) => {
+                const query = 'INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)';
+                connection.query(query, [answers.title, answers.salary, answers.department_id], (err) => {
+                    if (err) {
+                        console.error('Error adding role:', err);
+                        mainMenu();
+                        return;
+                    }
+                    console.log(`Added "${answers.title}" to the database!`);
+                    mainMenu();
+                })
+            });
+    });
+};
+
+// Add employee function
+function addEmployee() {
+    // Retrieve the list of roles
+    const roleQuery = 'SELECT id, title FROM role';
+    connection.query(roleQuery, (err, roles) => {
+        if (err) {
+            console.error('Error retrieving roles:', err);
+            mainMenu();
+            return;
+        }
+
+        // Retrieve the list of managers
+        const managerQuery = 'SELECT id, CONCAT(first_name, " ", last_name) AS manager_name FROM employee';
+        connection.query(managerQuery, (err, managers) => {
+            if (err) {
+                console.error('Error retrieving managers:', err);
+                mainMenu();
+                return;
+            }
+
+            inquirer
+                .prompt([
+                    {
+                        type: 'input',
+                        name: 'first_name',
+                        message: 'Enter the first name of the employee:',
+                    },
+                    {
+                        type: 'input',
+                        name: 'last_name',
+                        message: 'Enter the last name of the employee:',
+                    },
+                    {
+                        type: 'list',
+                        name: 'role_id',
+                        message: 'Select the role of the employee:',
+                        choices: roles.map((role) => ({
+                            name: role.title,
+                            value: role.id,
+                        })),
+                    },
+                    {
+                        type: 'list',
+                        name: 'manager_id',
+                        message: 'Select the manager of the employee:',
+                        choices: [{ name: 'None', value: null }, ...managers.map((manager) => ({
+                            name: manager.manager_name,
+                            value: manager.id,
+                        }))],
+                    }
+                ])
+                .then((answers) => {
+                    const query = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
+                    connection.query(query, [answers.first_name, answers.last_name, answers.role_id, answers.manager_id], (err) => {
+                        if (err) {
+                            console.error('Error adding employee:', err);
+                            mainMenu();
+                            return;
+                        }
+                        console.log(`Added "${answers.first_name} ${answers.last_name}" to the database!`);
+                        mainMenu();
+                    });
+                });
+        });
+    });
+};
+
