@@ -20,7 +20,7 @@ connection.connect((err) => {
 });
 
 
-// Main menu functions and inquirer prompts
+// MAIN MENU FUNCTIONS AND INQUIRER PROMPTS
 
 // Function for main menu
 function mainMenu() {
@@ -291,6 +291,113 @@ function addEmployee() {
                     });
                 });
         });
+    });
+};
+
+// Update employee role function
+function updateEmployeeRole() {
+    // Retrieve the list of employees
+    const employeeQuery = 'SELECT id, CONCAT(first_name, " ", last_name) AS employee_name FROM employee';
+    connection.query(employeeQuery, (err, employees) => {
+        if (err) {
+            console.error('Error retrieving employees:', err);
+            mainMenu();
+            return;
+        }
+
+        // Retrieve the list of roles
+        const roleQuery = 'SELECT id, title FROM role';
+        connection.query(roleQuery, (err, roles) => {
+            if (err) {
+                console.error('Error retrieving roles:', err);
+                mainMenu();
+                return;
+            }
+
+            inquirer
+                .prompt([
+                    {
+                        type: 'list',
+                        name: 'id',
+                        message: 'Select the employee to update:',
+                        choices: employees.map((employee) => ({
+                            name: employee.employee_name,
+                            value: employee.id,
+                        })),
+                    },
+                    {
+                        type: 'list',
+                        name: 'role_id',
+                        message: 'Select the new role of the employee:',
+                        choices: roles.map((role) => ({
+                            name: role.title,
+                            value: role.id,
+                        })),
+                    },
+                ])
+                .then((answers) => {
+                    const query = 'UPDATE employee SET role_id = ? WHERE id = ?';
+                    connection.query(query, [answers.role_id, answers.id], (err) => {
+                        if (err) {
+                            console.error('Error updating employee role:', err);
+                            mainMenu();
+                            return;
+                        }
+                        console.log('Employee role updated successfully!');
+                        mainMenu();
+                    });
+                });
+        });
+    });
+};
+
+
+// BONUS FUNCTIONS 
+
+// Update an employee's manager function
+function updateEmployeeManager() {
+    // Retrieve the list of employees
+    const employeeQuery = 'SELECT id, CONCAT(first_name, " ", last_name) AS employee_name FROM employee';
+    connection.query(employeeQuery, (err, employees) => {
+        if (err) {
+            console.error('Error retrieving employees:', err);
+            mainMenu();
+            return;
+        }
+        
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'id',
+                    message: 'Select the employee to update:',
+                    choices: employees.map((employee) => ({
+                        name: employee.employee_name,
+                        value: employee.id,
+                    })),
+                },
+                {
+                    type: 'list',
+                    name: 'manager_id',
+                    message: "Select the employee's new manager:",
+                    choices: employees.map((employee) => ({
+                        name: employee.employee_name,
+                        value: employee.id,
+                    })),
+                },
+            ])
+            .then((answers) => {
+                const query = 'UPDATE employee SET manager_id = ? WHERE id = ?';
+                connection.query(query, [answers.manager_id, answers.id], (err) => {
+                    if (err) {
+                        console.error('Error updating employee manager:', err);
+                        mainMenu();
+                        return;
+                    }
+                    console.log('Employee manager updated successfully!');
+                    mainMenu();
+                });
+            });
     });
 };
 
