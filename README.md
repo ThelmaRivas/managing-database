@@ -23,9 +23,6 @@ This command-line application allows users to manage a company's employee databa
 - Update an employee manager: Prompt the user to select the employee to update, choose its new manager and update the database.
 - Filter employees by Manager: Prompt the user to select a manager and displays all the employees that manager has in charge.
 - Filter employees by Department: Prompt the user to select a department and displays all the employees working in that department.
-- Delete department: Deletes permanently a department from the database 
-- Delete role: Deletes permanently a role from the database.
-- Delete employee: Deletes permanently a role from the database.
 - Calculate Department Budget: Calculate the total budget by department. 
 
 ## Installation
@@ -38,7 +35,9 @@ This command-line application allows users to manage a company's employee databa
 
 1. Set up your MySQL database connection by updating the connection details in the server.js file.
 2. Run the application: node server.js
-3. Choose from the presented options to view, add, update or delete departments, roles, and employees in the database.
+3. Choose from the presented options to view, add and/or update roles and employees in the database.
+
+Here is a [Walkthrough video](https://drive.google.com/file/d/1dTD3J9qYbMOM8Qy8jgPvZ9ncCYtnc2mS/view)
 
 ## License
 
@@ -46,5 +45,5 @@ This project is licensed under the MIT license.
 
 ## Contributing
 
-Contributions are welcome, you can contact me via [email](thelma.rivas00@gmail.com) for any suggestions or improvements. 
+Contributions are welcome, you can contact me via thelma.rivas00@gmail.com for any suggestions or improvements. 
 
