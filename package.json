@@ -1,7 +1,7 @@
 {
   "name": "managing-database",
   "version": "1.0.0",
-  "description": "",
+  "description": "This command-line application allows users to manage a company's employee database by performing various CRUD operations. It provides a content management system (CMS) interface for viewing, adding, and updating departments, roles, and employees.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "inquirer": "^8.2.4",
-    "mysql": "^2.18.1"
-  }
+    "mysql2": "^3.6.5"
+  },
+  "devDependencies": {}
 }
